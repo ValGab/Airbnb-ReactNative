@@ -7,12 +7,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import Constants from "expo-constants";
+
 import HomeScreen from "./containers/HomeScreen";
 import ProfileScreen from "./containers/ProfileScreen";
 import SignInScreen from "./containers/SignInScreen";
 import SignUpScreen from "./containers/SignUpScreen";
 import RoomScreen from "./containers/RoomScreen";
-import SplashScreen from "./containers/SplashScreen";
 import { Platform, SafeAreaView, StyleSheet } from "react-native";
 import ArrowLeft from "./components/ArrowLeft";
 import Logo from "./components/Logo";
@@ -24,6 +24,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   const setToken = async (token, id) => {
     if (token) {
@@ -42,10 +43,12 @@ export default function App() {
     const bootstrapAsync = async () => {
       // We should also handle error for production apps
       const userToken = await AsyncStorage.getItem("userToken");
+      const userId = await AsyncStorage.getItem("userId");
 
       // This will switch to the App screen or Auth screen and this loading
       // screen will be unmounted and thrown away.
       setUserToken(userToken);
+      setUserId(userId);
 
       setIsLoading(false);
     };
@@ -156,7 +159,12 @@ export default function App() {
                     }}
                   >
                     {(props) => (
-                      <ProfileScreen {...props} setToken={setToken} />
+                      <ProfileScreen
+                        {...props}
+                        setToken={setToken}
+                        userId={userId}
+                        userToken={userToken}
+                      />
                     )}
                   </Tab.Screen>
                 </Tab.Navigator>

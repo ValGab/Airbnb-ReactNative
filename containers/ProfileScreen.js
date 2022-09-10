@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
@@ -16,26 +17,23 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function ProfileScreen({ setToken }) {
+export default function ProfileScreen({ setToken, userToken, userId }) {
   const [username, setUsername] = useState("");
   const [description, setDescription] = useState("");
   const [email, setEmail] = useState("");
   const [photo, setPhoto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
+  const [error, setError] = useState(null);
+  const [updateText, setUpdateText] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Je récupère l'id stocké en AsyncStorage
-      const id = await AsyncStorage.getItem("userId");
-      // Je récupère le token stocké en AsyncStorage
-      const token = await AsyncStorage.getItem("userToken");
-
       try {
         const { data } = await axios.get(
-          `https://express-airbnb-api.herokuapp.com/user/${id}`,
+          `https://express-airbnb-api.herokuapp.com/user/${userId}`,
           {
-            headers: { Authorization: "Bearer " + token },
+            headers: { Authorization: "Bearer " + userToken },
           }
         );
         setUsername(data.username);
@@ -43,7 +41,7 @@ export default function ProfileScreen({ setToken }) {
         setDescription(data.description);
         setPhoto(data.photo);
       } catch (error) {
-        console.log(error.data.error);
+        console.log(error.response);
       }
       setIsLoading(false);
     };
@@ -51,19 +49,24 @@ export default function ProfileScreen({ setToken }) {
   }, []);
 
   const handleUpdate = async () => {
-    const token = await AsyncStorage.getItem("userToken");
+    setIsLoadingUpdate(true);
+    setError(null);
+    setUpdateText(null);
     try {
       const { data } = await axios.put(
         "https://express-airbnb-api.herokuapp.com/user/update",
         { email, description, username },
         {
-          headers: { Authorization: "Bearer " + token },
+          headers: { Authorization: "Bearer " + userToken },
         }
       );
-      console.log(data);
+      setUpdateText("Profil mis à jour !");
     } catch (error) {
-      console.log(error.response);
+      if (error.response.data) {
+        setError(error.response.data.error);
+      }
     }
+    setIsLoadingUpdate(false);
   };
 
   return isLoading ? (
@@ -153,9 +156,17 @@ export default function ProfileScreen({ setToken }) {
           setDescription(text);
         }}
       />
-      <TouchableOpacity onPress={handleUpdate} style={styles.btn}>
-        <Text style={styles.btnText}>Update</Text>
-      </TouchableOpacity>
+      {error && <Text style={styles.errorText}>{error}</Text>}
+      {updateText && <Text style={styles.updateText}>{updateText}</Text>}
+      {isLoadingUpdate ? (
+        <View style={[styles.container, styles.horizontal]}>
+          <ActivityIndicator size="large" color="#ea5a62" />
+        </View>
+      ) : (
+        <TouchableOpacity onPress={handleUpdate} style={styles.btn}>
+          <Text style={styles.btnText}>Update</Text>
+        </TouchableOpacity>
+      )}
       <TouchableOpacity
         onPress={() => setToken(null)}
         style={[styles.btn, styles.btnLogOut]}
@@ -195,11 +206,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 10,
   },
-  btnsArea: {
-    marginTop: 20,
-    alignItems: "center",
-    width: "100%",
-  },
   btn: {
     height: 70,
     width: "50%",
@@ -215,13 +221,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#606060",
   },
-  btnTextRegister: {
-    color: "#606060",
-    marginTop: 15,
-    marginBottom: 20,
-  },
   errorText: {
     color: "#ea5a62",
-    marginBottom: 5,
+    marginVertical: 5,
+  },
+  updateText: {
+    color: "#606060",
+    fontWeight: "bold",
+    marginVertical: 5,
   },
 });
