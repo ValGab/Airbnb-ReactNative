@@ -24,11 +24,14 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
   const [photo, setPhoto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
+  const [showIconsPic, setShowIconsPic] = useState(false);
   const [error, setError] = useState(null);
   const [updateText, setUpdateText] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
+      setError(null);
+      setUpdateText(null);
       const fetchData = async () => {
         try {
           const { data } = await axios.get(
@@ -40,7 +43,9 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
           setUsername(data.username);
           setEmail(data.email);
           setDescription(data.description);
-          setPhoto(data.photo);
+          if (data.photo) {
+            setPhoto(data.photo.url);
+          }
         } catch (error) {
           console.log(error.response);
         }
@@ -93,20 +98,16 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
   };
 
   const getPermissionAndSelectPicture = async () => {
-    // Je demande la permission
+    // Je demande la permission d'accéder à la galerie
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     // Si c'est ok :
     if (status === "granted") {
-      // J'ouvre la galerie
+      // J'ouvre la galerie si la permission est donnée
       const result = await ImagePicker.launchImageLibraryAsync();
       if (result.cancelled === false) {
         // console.log(result);
         setPhoto(result.uri);
-        // Sinon :
-      } else {
-        alert("Sélection d'image annulée");
       }
-      // Sinon :
     } else {
       alert("Permission refusée");
     }
@@ -118,8 +119,9 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
     if (status === "granted") {
       // Ouvrir l'appareil photo
       const result = await ImagePicker.launchCameraAsync();
-      // console.log(result);
-      setPhoto(result.uri);
+      if (result.cancelled === false) {
+        setPhoto(result.uri);
+      }
     } else {
       alert("Permission refusée");
     }
@@ -148,7 +150,10 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
           alignItems: "center",
         }}
       >
-        <View
+        <TouchableOpacity
+          onPress={() => {
+            setShowIconsPic((prevState) => !prevState);
+          }}
           style={{
             width: 140,
             height: 140,
@@ -168,27 +173,29 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
           ) : (
             <FontAwesome5 name="user-alt" size={80} color="lightgrey" />
           )}
-        </View>
-        <View
-          style={{
-            marginLeft: 20,
-            height: 130,
-            justifyContent: "space-around",
-          }}
-        >
-          <FontAwesome
-            name="picture-o"
-            size={30}
-            color="grey"
-            onPress={getPermissionAndSelectPicture}
-          />
-          <Ionicons
-            name="camera-sharp"
-            size={30}
-            color="grey"
-            onPress={getPermissionAndTakePicture}
-          />
-        </View>
+        </TouchableOpacity>
+        {showIconsPic && (
+          <View
+            style={{
+              marginLeft: 20,
+              height: 130,
+              justifyContent: "space-around",
+            }}
+          >
+            <FontAwesome
+              name="picture-o"
+              size={30}
+              color="grey"
+              onPress={getPermissionAndSelectPicture}
+            />
+            <Ionicons
+              name="camera-sharp"
+              size={30}
+              color="grey"
+              onPress={getPermissionAndTakePicture}
+            />
+          </View>
+        )}
       </View>
       <TextInput
         style={styles.textInput}

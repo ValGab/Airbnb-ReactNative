@@ -7,16 +7,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import Constants from "expo-constants";
+import { Platform, SafeAreaView, StyleSheet } from "react-native";
 
 import HomeScreen from "./containers/HomeScreen";
 import ProfileScreen from "./containers/ProfileScreen";
 import SignInScreen from "./containers/SignInScreen";
 import SignUpScreen from "./containers/SignUpScreen";
 import RoomScreen from "./containers/RoomScreen";
-import { Platform, SafeAreaView, StyleSheet } from "react-native";
+import AroundMeScreen from "./containers/AroundMeScreen";
+
 import ArrowLeft from "./components/ArrowLeft";
 import Logo from "./components/Logo";
-import AroundMeScreen from "./containers/AroundMeScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -36,6 +37,7 @@ export default function App() {
     }
 
     setUserToken(token);
+    setUserId(id);
   };
 
   useEffect(() => {
@@ -135,8 +137,8 @@ export default function App() {
                   </Tab.Screen>
                   <Tab.Screen
                     name="Around me"
-                    component={AroundMeScreen}
                     options={{
+                      headerShown: false,
                       tabBarIcon: ({ color }) => (
                         <MaterialCommunityIcons
                           name="map-marker"
@@ -145,7 +147,31 @@ export default function App() {
                         />
                       ),
                     }}
-                  ></Tab.Screen>
+                  >
+                    {() => (
+                      <Stack.Navigator
+                        screenOptions={{
+                          headerTitle: () => <Logo />,
+                          title: "Aligned Center",
+                          headerTitleAlign: "center",
+                        }}
+                      >
+                        <Stack.Screen
+                          name="Around Me"
+                          component={AroundMeScreen}
+                        />
+                        <Stack.Screen
+                          name="Room"
+                          options={{
+                            headerLeft: () => {
+                              <ArrowLeft />;
+                            },
+                          }}
+                          component={RoomScreen}
+                        />
+                      </Stack.Navigator>
+                    )}
+                  </Tab.Screen>
                   <Tab.Screen
                     name="My profile"
                     options={{
