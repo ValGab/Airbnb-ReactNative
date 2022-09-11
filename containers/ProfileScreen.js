@@ -12,7 +12,6 @@ import { useState, useEffect } from "react";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import axios from "axios";
 import Lottie from "lottie-react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,6 +22,7 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
   const [email, setEmail] = useState("");
   const [photo, setPhoto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const [error, setError] = useState(null);
   const [updateText, setUpdateText] = useState(null);
@@ -52,6 +52,14 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
     setIsLoadingUpdate(true);
     setError(null);
     setUpdateText(null);
+    const tab = photo.split(".");
+    const extension = tab[tab.length - 1];
+    const formData = new FormData();
+    formData.append("photo", {
+      uri: photo,
+      name: `avatar-${userId}.${extension}`,
+      type: `image/${extension}`,
+    });
     try {
       const { data } = await axios.put(
         "https://express-airbnb-api.herokuapp.com/user/update",
@@ -60,6 +68,19 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
           headers: { Authorization: "Bearer " + userToken },
         }
       );
+
+      const sendPicture = await axios.put(
+        "https://express-airbnb-api.herokuapp.com/user/upload_picture",
+        formData,
+        {
+          headers: {
+            Authorization: "Bearer " + userToken,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      // console.log(data);
+      // console.log(sendPicture);
       setUpdateText("Profil mis à jour !");
     } catch (error) {
       if (error.response.data) {
@@ -67,6 +88,39 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
       }
     }
     setIsLoadingUpdate(false);
+  };
+
+  const getPermissionAndSelectPicture = async () => {
+    // Je demande la permission
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    // Si c'est ok :
+    if (status === "granted") {
+      // J'ouvre la galerie
+      const result = await ImagePicker.launchImageLibraryAsync();
+      if (result.cancelled === false) {
+        // console.log(result);
+        setPhoto(result.uri);
+        // Sinon :
+      } else {
+        alert("Sélection d'image annulée");
+      }
+      // Sinon :
+    } else {
+      alert("Permission refusée");
+    }
+  };
+
+  const getPermissionAndTakePicture = async () => {
+    //Demander le droit d'accéder à l'appareil photo
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      // Ouvrir l'appareil photo
+      const result = await ImagePicker.launchCameraAsync();
+      // console.log(result);
+      setPhoto(result.uri);
+    } else {
+      alert("Permission refusée");
+    }
   };
 
   return isLoading ? (
@@ -104,7 +158,11 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
           }}
         >
           {photo ? (
-            <Image source={photo} resizeMode="contain" />
+            <Image
+              source={{ uri: photo }}
+              resizeMode="contain"
+              style={{ width: 130, height: 130, borderRadius: 140 / 2 }}
+            />
           ) : (
             <FontAwesome5 name="user-alt" size={80} color="lightgrey" />
           )}
@@ -121,12 +179,14 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
             size={30}
             color="grey"
             style={styles.icon}
+            onPress={getPermissionAndSelectPicture}
           />
           <Ionicons
             name="camera-sharp"
             size={30}
             color="grey"
             style={styles.icon}
+            onPress={getPermissionAndTakePicture}
           />
         </View>
       </View>
