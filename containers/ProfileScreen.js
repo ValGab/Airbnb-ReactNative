@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import axios from "axios";
 import Lottie from "lottie-react-native";
@@ -22,31 +23,32 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
   const [email, setEmail] = useState("");
   const [photo, setPhoto] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
   const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
   const [error, setError] = useState(null);
   const [updateText, setUpdateText] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data } = await axios.get(
-          `https://express-airbnb-api.herokuapp.com/user/${userId}`,
-          {
-            headers: { Authorization: "Bearer " + userToken },
-          }
-        );
-        setUsername(data.username);
-        setEmail(data.email);
-        setDescription(data.description);
-        setPhoto(data.photo);
-      } catch (error) {
-        console.log(error.response);
-      }
-      setIsLoading(false);
-    };
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        try {
+          const { data } = await axios.get(
+            `https://express-airbnb-api.herokuapp.com/user/${userId}`,
+            {
+              headers: { Authorization: "Bearer " + userToken },
+            }
+          );
+          setUsername(data.username);
+          setEmail(data.email);
+          setDescription(data.description);
+          setPhoto(data.photo);
+        } catch (error) {
+          console.log(error.response);
+        }
+        setIsLoading(false);
+      };
+      fetchData();
+    }, [])
+  );
 
   const handleUpdate = async () => {
     setIsLoadingUpdate(true);
@@ -178,14 +180,12 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
             name="picture-o"
             size={30}
             color="grey"
-            style={styles.icon}
             onPress={getPermissionAndSelectPicture}
           />
           <Ionicons
             name="camera-sharp"
             size={30}
             color="grey"
-            style={styles.icon}
             onPress={getPermissionAndTakePicture}
           />
         </View>
@@ -248,7 +248,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     padding: 10,
   },
-  icon: {},
   textInput: {
     borderBottomColor: "#ea5a62",
     borderBottomWidth: 2,
