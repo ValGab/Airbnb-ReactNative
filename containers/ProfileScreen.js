@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import axios from "axios";
@@ -16,6 +16,8 @@ import Lottie from "lottie-react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+
+import CustomInput from "../components/CustomInput";
 
 export default function ProfileScreen({ setToken, userToken, userId }) {
   const [username, setUsername] = useState("");
@@ -32,6 +34,7 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
     useCallback(() => {
       setError(null);
       setUpdateText(null);
+      setShowIconsPic(false);
       const fetchData = async () => {
         try {
           const { data } = await axios.get(
@@ -197,24 +200,21 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
           </View>
         )}
       </View>
-      <TextInput
+      <CustomInput
         style={styles.textInput}
         value={email}
-        placeholder="email"
-        onChangeText={(text) => {
-          setEmail(text);
-        }}
+        placeholder="e-mail"
+        setState={setEmail}
       />
-      <TextInput
+      <CustomInput
         style={styles.textInput}
         value={username}
         placeholder="username"
-        onChangeText={(text) => {
-          setUsername(text);
-        }}
+        setState={setUsername}
       />
       <TextInput
         style={styles.textInputDescription}
+        selectionColor="#ea5a62"
         multiline={true}
         textAlignVertical="top"
         value={description}
@@ -254,14 +254,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 10,
-  },
-  textInput: {
-    borderBottomColor: "#ea5a62",
-    borderBottomWidth: 2,
-    marginBottom: 18,
-    width: "90%",
-    fontSize: 16,
-    paddingVertical: 10,
   },
   textInputDescription: {
     borderColor: "#ea5a62",

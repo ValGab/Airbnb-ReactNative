@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import logo from "../assets/logo.png";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Entypo } from "@expo/vector-icons";
+import CustomInput from "../components/CustomInput";
 
 export default function SignUpScreen({ setToken, navigation }) {
   const [email, setEmail] = useState("");
@@ -20,6 +22,8 @@ export default function SignUpScreen({ setToken, navigation }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
@@ -59,24 +63,21 @@ export default function SignUpScreen({ setToken, navigation }) {
     >
       <Image source={logo} style={styles.logo} resizeMode="contain" />
       <Text style={styles.title}>Sign up</Text>
-      <TextInput
+      <CustomInput
         style={styles.textInput}
         value={email}
         placeholder="e-mail"
-        onChangeText={(text) => {
-          setEmail(text);
-        }}
+        setState={setEmail}
       />
-      <TextInput
+      <CustomInput
         style={styles.textInput}
         value={username}
         placeholder="username"
-        onChangeText={(text) => {
-          setUsername(text);
-        }}
+        setState={setUsername}
       />
       <TextInput
         style={styles.textInputDescription}
+        selectionColor="#ea5a62"
         multiline={true}
         textAlignVertical="top"
         value={description}
@@ -85,24 +86,42 @@ export default function SignUpScreen({ setToken, navigation }) {
           setDescription(text);
         }}
       />
-      <TextInput
-        style={styles.textInput}
-        value={password}
-        placeholder="password"
-        secureTextEntry={true}
-        onChangeText={(text) => {
-          setPassword(text);
-        }}
-      />
-      <TextInput
-        style={styles.textInput}
-        value={confirmPassword}
-        placeholder="confirm password"
-        secureTextEntry={true}
-        onChangeText={(text) => {
-          setConfirmPassword(text);
-        }}
-      />
+      <View style={{ alignItems: "center", width: "100%" }}>
+        <CustomInput
+          secure={!showPassword ? true : false}
+          style={styles.textInput}
+          value={password}
+          placeholder="password"
+          setState={setPassword}
+        />
+        <Entypo
+          name="eye"
+          size={24}
+          color="#606060"
+          style={{ position: "absolute", right: "8%", top: 15 }}
+          onPress={() => {
+            setShowPassword((prevState) => !prevState);
+          }}
+        />
+      </View>
+      <View style={{ alignItems: "center", width: "100%" }}>
+        <CustomInput
+          secure={!showConfirmPassword ? true : false}
+          style={styles.textInput}
+          value={confirmPassword}
+          placeholder="confirm password"
+          setState={setConfirmPassword}
+        />
+        <Entypo
+          name="eye"
+          size={24}
+          color="#606060"
+          style={{ position: "absolute", right: "8%", top: 15 }}
+          onPress={() => {
+            setShowConfirmPassword((prevState) => !prevState);
+          }}
+        />
+      </View>
       <View style={styles.btnsArea}>
         <Text style={styles.errorText}>{error}</Text>
         {isLoading ? (
@@ -149,14 +168,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 40,
     fontWeight: "bold",
-  },
-  textInput: {
-    borderBottomColor: "#ea5a62",
-    borderBottomWidth: 2,
-    marginBottom: 18,
-    width: "90%",
-    fontSize: 16,
-    paddingVertical: 10,
   },
   textInputDescription: {
     borderColor: "#ea5a62",

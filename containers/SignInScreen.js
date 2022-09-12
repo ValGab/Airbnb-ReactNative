@@ -2,7 +2,6 @@ import { useState } from "react";
 import axios from "axios";
 import {
   Text,
-  TextInput,
   View,
   TouchableOpacity,
   Image,
@@ -11,10 +10,13 @@ import {
 } from "react-native";
 import logo from "../assets/logo.png";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { Entypo } from "@expo/vector-icons";
+import CustomInput from "../components/CustomInput.js";
 
 export default function SignInScreen({ setToken, navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,23 +51,31 @@ export default function SignInScreen({ setToken, navigation }) {
     >
       <Image source={logo} style={styles.logo} resizeMode="contain" />
       <Text style={styles.title}>Sign in</Text>
-      <TextInput
+
+      <CustomInput
         style={styles.textInput}
         value={email}
         placeholder="e-mail"
-        onChangeText={(text) => {
-          setEmail(text);
-        }}
+        setState={setEmail}
       />
-      <TextInput
-        style={styles.textInput}
-        value={password}
-        placeholder="password"
-        secureTextEntry={true}
-        onChangeText={(text) => {
-          setPassword(text);
-        }}
-      />
+      <View style={{ alignItems: "center", width: "100%" }}>
+        <CustomInput
+          secure={!showPassword ? true : false}
+          style={styles.textInput}
+          value={password}
+          placeholder="password"
+          setState={setPassword}
+        />
+        <Entypo
+          name="eye"
+          size={24}
+          color="#606060"
+          style={{ position: "absolute", right: "8%", top: 15 }}
+          onPress={() => {
+            setShowPassword((prevState) => !prevState);
+          }}
+        />
+      </View>
       <View style={styles.btnsArea}>
         <Text style={styles.errorText}>{error}</Text>
         {isLoading ? (
@@ -110,14 +120,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 40,
     fontWeight: "bold",
-  },
-  textInput: {
-    borderBottomColor: "#ea5a62",
-    borderBottomWidth: 2,
-    marginBottom: 18,
-    width: "90%",
-    fontSize: 16,
-    paddingVertical: 10,
   },
   btnsArea: {
     marginTop: 40,

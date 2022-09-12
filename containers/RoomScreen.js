@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import LottieView from "lottie-react-native";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import Swiper from "react-native-swiper";
 
 import displayStars from "../functions/DisplayStars";
 
@@ -21,10 +22,10 @@ export default function RoomScreen({ route }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
+        const { data } = await axios.get(
           `https://express-airbnb-api.herokuapp.com/rooms/${route.params.id}`
         );
-        setData(response.data);
+        setData(data);
       } catch (error) {
         console.log(error.response);
       }
@@ -47,11 +48,29 @@ export default function RoomScreen({ route }) {
   ) : (
     <ScrollView>
       <View>
-        <Image
+        <Swiper
+          style={styles.wrapper}
+          showsButtons={false}
+          dotColor="salmon"
+          activeDotColor="red"
+          buttonColor="yellow"
+        >
+          {data.photos.map((slide) => {
+            return (
+              <View style={styles.slide} key={slide.picture_id}>
+                <Image
+                  source={{ uri: slide.url }}
+                  style={{ height: "100%", width: "100%" }}
+                />
+              </View>
+            );
+          })}
+        </Swiper>
+        {/* <Image
           source={{ uri: data.photos[0].url }}
           style={styles.pic}
           resizeMode="cover"
-        />
+        /> */}
         <Text style={styles.price}>{data.price} €</Text>
       </View>
       <View style={styles.roomInfos}>
@@ -121,6 +140,12 @@ const styles = StyleSheet.create({
     borderTopColor: "#bababa",
     borderTopWidth: 2,
     paddingVertical: 10,
+  },
+  wrapper: {
+    height: 280,
+  },
+  slide: {
+    height: 280,
   },
   pic: {
     width: "100%",
