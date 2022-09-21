@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "NavApp",
-    "slug": "NavApp",
+    "name": "Airbnb-ValGab",
+    "slug": "airbnb-valgab",
+    "description": "Airbnb made with React Native & Expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
