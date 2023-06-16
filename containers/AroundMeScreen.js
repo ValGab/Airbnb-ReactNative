@@ -31,13 +31,13 @@ export default function AroundMeScreen() {
           //   setLongitude(location.coords.longitude);
 
           response = await axios.get(
-            `https://express-airbnb-api.herokuapp.com/rooms/around?latitude=48.856614&longitude=2.3522219`
+            `https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/rooms/around?latitude=48.856614&longitude=2.3522219`
             // requête avec location.coords.latitude et location.coord.longitude si données de l'utilisateur actives
           );
           // Soit status === "denied" donc l'utilisateur ne veut pas
         } else {
           response = await axios.get(
-            `https://express-airbnb-api.herokuapp.com/rooms/around`
+            `https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/rooms/around`
           );
           setError("Permission de localisation refusée");
         }

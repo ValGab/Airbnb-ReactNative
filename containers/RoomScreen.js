@@ -23,7 +23,7 @@ export default function RoomScreen({ route }) {
     const fetchData = async () => {
       try {
         const { data } = await axios.get(
-          `https://express-airbnb-api.herokuapp.com/rooms/${route.params.id}`
+          `https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/rooms/${route.params.id}`
         );
         setData(data);
       } catch (error) {

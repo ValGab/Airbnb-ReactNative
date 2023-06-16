@@ -38,7 +38,7 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
       const fetchData = async () => {
         try {
           const { data } = await axios.get(
-            `https://express-airbnb-api.herokuapp.com/user/${userId}`,
+            `https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/user/${userId}`,
             {
               headers: { Authorization: "Bearer " + userToken },
             }
@@ -72,7 +72,7 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
     });
     try {
       const { data } = await axios.put(
-        "https://express-airbnb-api.herokuapp.com/user/update",
+        "https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/user/update",
         { email, description, username },
         {
           headers: { Authorization: "Bearer " + userToken },
@@ -80,7 +80,7 @@ export default function ProfileScreen({ setToken, userToken, userId }) {
       );
 
       const sendPicture = await axios.put(
-        "https://express-airbnb-api.herokuapp.com/user/upload_picture",
+        "https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/user/upload_picture",
         formData,
         {
           headers: {
